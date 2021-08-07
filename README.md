@@ -13,7 +13,7 @@ system.
 
 ### Prerequisites
 
-In order to use and develop the openIMIS IMIS Android Application
+In order to use xxxxx and develop the openIMIS IMIS Android Application
 on your local machine, you first need to install:
 
 * [Android Studio with Android SDK](https://developer.android.com/studio)
