@@ -1,0 +1,376 @@
+<!--Copyright (c) 2016-%CurrentYear% Swiss Agency for Development and Cooperation (SDC)
+
+The program users must agree to the following terms:
+
+Copyright notices
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU AGPL v3 License as published by the 
+Free Software Foundation, version 3 of the License.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU AGPL v3 License for more details www.gnu.org.
+
+Disclaimer of Warranty
+There is no warranty for the program, to the extent permitted by applicable law; except when otherwise stated in writing the copyright 
+holders and/or other parties provide the program "as is" without warranty of any kind, either expressed or implied, including, but not 
+limited to, the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the quality and 
+performance of the program is with you. Should the program prove defective, you assume the cost of all necessary servicing, repair or correction.
+
+Limitation of Liability 
+In no event unless required by applicable law or agreed to in writing will any copyright holder, or any other party who modifies and/or 
+conveys the program as permitted above, be liable to you for damages, including any general, special, incidental or consequential damages 
+arising out of the use or inability to use the program (including but not limited to loss of data or data being rendered inaccurate or losses 
+sustained by you or third parties or a failure of the program to operate with any other programs), even if such holder or other party has been 
+advised of the possibility of such damages.
+
+In case of dispute arising out or in relation to the use of the program, it is subject to the public law of Switzerland. The place of jurisdiction is Berne.-->
+<html>
+<head>
+    <title>Add new family</title>
+    <link href="../CSS/Style.CSS" rel="stylesheet" type="text/css"/>
+    <script src="../JS/jquery-3.2.1.min.js"></script>
+    <script src="../JS/exact.js"></script>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" charset="utf-8"/>
+
+
+    <script type="text/javascript">
+       $(document).ready(function(){
+
+            document.title = Android.getString('AddNewFamily');
+            var FamilyId = queryString('f');
+
+            if (parseInt(FamilyId) != 0)
+                $('#btnNext').val(Android.getString("Save"));
+
+            fillDropdowns();
+
+
+            $('#ddlRegion').change(function(){
+                getDistricts($(this).val());
+            });
+
+            $('#ddlDistrict').change(function(){
+                getWards($(this).val());
+            });
+
+            $('#ddlWard').change(function(){
+                getVillages($(this).val());
+            });
+
+            $('#btnNext').click(function(){
+                var HouseNumber1 = $("#txtHouseNumber").val();
+
+                var passed = isFormValidated();
+
+                var regex = /^[0-9a-zA-Z- '/]+$/;
+                var passed1 = true;
+
+                 if (passed == true) {
+                    if (regex.test(HouseNumber1) !== true) {
+                        Android.ShowDialog(Android.getString('InvalidText'));//alert("Invalid Input");
+                        var passed1 = false();
+                    }
+                }
+
+                 if (passed1 == true && passed == true){
+                    if(FamilyId == 0 || FamilyId == null || FamilyId == undefined){
+                        saveFamilyLocally();
+                        window.open("Insuree.html", "_self");
+                    }else{
+                        var familyData = createJSONString();
+                        Android.SaveFamily(familyData, '');
+                        window.open("FamilyAndInsurees.html?f=" + FamilyId, "_self");
+                    }
+                 }
+                 else{
+                    if(passed1 == true){
+                        Android.ShowDialog(Android.getString('FieldRequired'));
+                    }
+                 }
+            });
+
+            //if FamilyId > 0; Load family
+
+            if (parseInt(FamilyId) != 0){
+
+                var strFamily = Android.getFamily(parseInt(FamilyId));
+
+                var $Family = $.parseJSON(strFamily);
+                $("#ddlRegion").val($Family[0]["RegionId"]).trigger("change");
+                $("#ddlDistrict").val($Family[0]["DistrictId"]).trigger("change");
+                $("#ddlWard").val($Family[0]["WardId"]).trigger("change");
+                $("#ddlVillage").val($Family[0]["VillageId"]);
+/*
+                if($Family[0]["Poverty"] == "0"){
+                    $Family[0]["Poverty"] = 3;
+                }
+
+                if($Family[0]["Ethnicity"] == 2){
+                    $Family[0]["Ethnicity"] = 0;
+                }
+
+                if($Family[0]["PermanentAddress"] == 2){
+                    $Family[0]["PermanentAddress"] = 0;
+                }
+
+                if($Family[0]["TeleVision"] == 2){
+                    $Family[0]["TeleVision"] = 0;
+                }
+
+                if($Family[0]["FamilyTables"] == 2){
+                    $Family[0]["FamilyTables"] = 0;
+                }*/
+
+                var isOffline = $Family[0]["isOffline"];
+                if(isOffline == 0 || isOffline == false || isOffline == "false"){
+                    $("#ddlRegion").attr("disabled","disabled");
+                    $("#ddlDistrict").attr("disabled","disabled");
+                    $("#ddlWard").attr("disabled","disabled");
+                    $("#ddlVillage").attr("disabled","disabled");
+                }
+                //Load remaining fields
+                bindDataFromDatafield(strFamily);
+
+            }
+
+        });
+
+        function createJSONString(){
+            var jsonFamily = getControlsValuesJSON('li');
+            return jsonFamily;
+        }
+
+        function fillDropdowns(){
+            getRegions();
+            getPovertyStatus();
+            getConfirmationTypes();
+            getConfirmationNo();
+            getFamilyTypes();
+            getPermanentAddress();
+            getEthnicity();
+            getTeleVision();
+            getFamilyTables();
+            getFamilyFarming();
+            getYesNoNoCh();
+        }
+
+        function saveFamilyLocally(){
+            var jsonFamily = getControlsValuesJSON('li');//alert(jsonFamily);
+            sessionStorage.setItem("FamilyData", jsonFamily);
+        }
+
+
+
+
+
+        function getRegions(){
+            var $Regions = Android.getRegions();
+            var SelectText = Android.getString('SelectRegion');
+            var rows = JSON.parse($Regions).length;
+            if(rows == 1 )SelectText = null;
+            bindDropdown('ddlRegion', $Regions, 'LocationId', 'LocationName',200, SelectText);
+            if(rows == 1 )getDistricts($('#ddlRegion').val());
+
+         }
+
+        function getDistricts(RegionId){
+             var SelectText = Android.getString('SelectDistrict');
+             var $Districts = Android.getDistricts(parseInt(RegionId));
+             //alert(Android.getDistricts(1));
+             var rows = JSON.parse($Districts).length;
+             if(rows == 1 )SelectText = null;
+             bindDropdown('ddlDistrict', $Districts, 'LocationId', 'LocationName',0,SelectText );
+             if(rows == 1 ) getWards($('#ddlDistrict').val());
+        }
+
+        function getWards(DistrictId){
+            var SelectText = Android.getString('SelectWard');
+            var OfficerCode = Android.getOfficerCode();
+            <!--var $Wards = Android.getWardsOfficer(OfficerCode);-->
+            var $Wards = Android.getWards(parseInt(DistrictId));
+            //alert(DistrictId);
+            var rows = JSON.parse($Wards).length;
+            if(rows == 1)SelectText = null;
+            bindDropdown('ddlWard', $Wards, 'LocationId', 'LocationName',0, SelectText);
+            if(rows == 1 )getVillages($('#ddlWard').val());
+
+        }
+
+        function getVillages(WardId){
+            var SelectText = Android.getString('SelectVillage');
+            <!--var $Villages = Android.getVillagesOfficer(WardId.toString());-->
+            var $Villages = Android.getVillages(parseInt(WardId.toString()));
+            var rows = JSON.parse($Villages).length;
+            if(rows == 1)SelectText = null;
+            bindDropdown('ddlVillage', $Villages, 'LocationId', 'LocationName',0,SelectText);
+        }
+
+        function getPovertyStatus(){
+            var $YesNo = Android.getYesNoS();
+            bindDropdown('ddlPovertyStatus', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+        }
+
+        function getYesNoNoCh(){
+            var $YesNo = Android.getYesNoNoCh();
+            bindDropdown('ddlNumberChildren', $YesNo, 'value', 'key',null, Android.getString('SelectNoCh'));
+
+
+        }
+
+        function getConfirmationTypes(){
+            var $YesNo = Android.getYesNoBM();
+            bindDropdown('ddlConfirmationType', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+
+            //$textLanguage = "ConfirmationType";
+            //if(Android.getSelectedLanguage() != "en"){
+                //$textLanguage = "AltLanguage";
+            //}
+            //var $ConfirmationTypes = Android.getConfirmationTypes();
+            //bindDropdown('ddlConfirmationType', $ConfirmationTypes, 'ConfirmationTypeCode', $textLanguage,"", Android.getString('SelectConfirmationType'));
+        }
+
+        function getConfirmationNo(){
+            var $YesNo = Android.getYesNoRo();
+            bindDropdown('txtConfirmationNo', $YesNo, 'value', 'key',null, Android.getString('SelectConfirmationType'));
+
+            //$textLanguage = "ConfirmationType";
+            //if(Android.getSelectedLanguage() != "en"){
+                //$textLanguage = "AltLanguage";
+            //}
+            //var $ConfirmationTypes = Android.getConfirmationType();
+            //bindDropdown('txtConfirmationNo', $ConfirmationTypes, 'ConfirmationTypeCode', $textLanguage,"", Android.getString('SelectConfirmationType'));
+        }
+
+        function getFamilyTypes(){
+            var $YesNo = Android.getYesNoFu();
+            bindDropdown('ddlGroupType', $YesNo, 'value', 'key',null, Android.getString('SelectFamilyType'));
+
+            //$textLanguage = "FamilyType";
+            //if(Android.getSelectedLanguage() != "en"){
+                //$textLanguage = "AltLanguage";
+            //}
+            //var $FamilyTypes = Android.getGroupTypes();
+            //bindDropdown('ddlGroupType', $FamilyTypes, 'FamilyTypeCode', $textLanguage,0, Android.getString('SelectFamilyType'));
+        }
+
+        function getEthnicity(){
+            var $YesNo = Android.getYesNo2();
+            bindDropdown('ddlEthnicity', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+
+
+        }
+
+        function getPermanentAddress(){
+            var $YesNo = Android.getYesNo2();
+            bindDropdown('txtPermanentAddress', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+
+
+        }
+
+        function getTeleVision(){
+            var $YesNo = Android.getYesNo2();
+            bindDropdown('txtTeleVision', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+
+
+        }
+
+        function getFamilyTables(){
+            var $YesNo = Android.getYesNo2();
+            bindDropdown('txtFamilyTables', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+
+
+        }
+
+        function getFamilyFarming(){
+            var $YesNo = Android.getYesNoFafa();
+            bindDropdown('txtFamilyFarming', $YesNo, 'value', 'key',null, Android.getString('SelectPovertyStatus'));
+
+
+        }
+
+    </script>
+
+</head>
+<body>
+<div>
+    <ul class="ulEntry">
+        <li>
+            <input type="hidden" id="hfisOffline" datafield="isOffline" value="1"/>
+            <input type="hidden" id="hfFamilyId" datafield="FamilyId" value="0"/>
+            <span strName="Region">Region</span>
+            <select id="ddlRegion" datafield="RegionId" required></select>
+        </li>
+        <li>
+            <span strName="District">District</span>
+            <select id="ddlDistrict" datafield="DistrictId" required></select>
+        </li>
+        <li>
+            <span strName="Ward">Ward</span>
+            <select id="ddlWard" datafield="WardId" required></select>
+        </li>
+        <li style="display:none;"><!--style="display:none;"-->
+            <span strName="Village">Village</span>
+            <select id="ddlVillage" datafield="VillageId" required></select>
+        </li>
+        <li >
+            <span strName="HouseNumber">House number</span>
+            <input type="text" id="txtHouseNumber" datafield="HouseNumber" maxlength="50" required/>
+        </li>
+        <li ><!--
+            <span strName="NumberChildren">Number of Children</span>
+            <input type="number" id="txtNumberChildren" datafield="" maxlength="2" required/> -->
+            <span strName="NumberChildren">Number of Children</span>
+            <select id="ddlNumberChildren" datafield="NumberChildren" required></select>
+        </li>
+        <li id="Poverty">
+            <span strName="PovertyStatus">Poverty Status</span>
+            <select id="ddlPovertyStatus" datafield="Poverty" required></select>
+        </li>
+        <li id="Confirmation">
+            <span strName="ConfirmationType">Confirmation Type</span>
+            <select id="ddlConfirmationType" datafield="ConfirmationType" required></select>
+        </li>
+        <li id="ConfirmationNo">
+            <span strName="ConfirmationNo">Confirmation No.</span>
+            <select id="txtConfirmationNo" datafield="ConfirmationNo" required/></select>
+        </li>
+        <li id="FamilyType">
+            <span strName="GroupType">Group Type</span>
+            <select id="ddlGroupType" datafield="FamilyType" required></select>
+        </li>
+        <li id="Ethnicity"> <!--  style="display:none;"  -->
+            <span strName="Ethnicity">Ethnicity</span>
+            <select id="ddlEthnicity" datafield="Ethnicity" required></select>
+        </li>
+        <li id="PermanentAddress">
+            <span strName="PermanentAddress">Permanent Address Details</span>
+            <select id="txtPermanentAddress" datafield="FamilyAddress" required></select>
+        </li>
+        <li id="TeleVision">
+        <span strName="TeleVision">Has TeleVision</span>
+        <select id="txtTeleVision" datafield="TeleVision" required></select>
+    </li>
+    <li id="FamilyTables">
+        <span strName="FamilyTables">Has FamilyTables</span>
+        <select id="txtFamilyTables" datafield="FamilyTables" required></select>
+    </li>
+    <li id="FamilyFarming">
+        <span strName="FamilyFarming">Has FamilyFarming</span>
+        <select id="txtFamilyFarming" datafield="FamilyFarming" required></select>
+    </li>
+    <li style="display:none;">
+        <span strName="Field1">Field1</span>
+        <input type="text" id="txtField1" datafield="Field1" maxlength="50" />
+    </li>
+    <li style="display:none;">
+        <span strName="Field2">Field2</span>
+        <input type="text" id="txtField2" datafield="Field2" maxlength="50" />
+    </li>
+
+    </ul>
+
+
+</div>
+<div class="footer">
+    <input type="submit" id="btnNext" strName="Next" value="Next">
+</div>
+</body>
+</html>
