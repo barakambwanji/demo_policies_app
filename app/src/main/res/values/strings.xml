@@ -413,4 +413,5 @@
   <string name="empty_year">Please fill the year</string>
   <string name="DeleteFamilyOnlyOffline">Taarifa za familia hii zitafutwa kwenye simu tu.</string>
   <string name="LastInstallment">Haya yatakuwa malipo yako ya mwisho, Je unahakika unataka kuendelea?.</string>
+  <string name="HighestEd">Ngazi ya Elimu</string>
 </resources>

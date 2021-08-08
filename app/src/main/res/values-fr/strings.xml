@@ -413,4 +413,5 @@
   <string name="empty_year">Veuillez remplir l\'année</string>
   <string name="DeleteFamilyOnlyOffline">La suppression de la famille supprimera également tous les assurés, polices et primes de cette famille.</string>
   <string name="LastInstallment">Dernier versement</string>
+    <string name="HighestEd">Highest Education</string>
 </resources>

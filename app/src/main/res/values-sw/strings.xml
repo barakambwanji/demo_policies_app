@@ -413,4 +413,5 @@
   <string name="empty_year">Please fill the year</string>
   <string name="DeleteFamilyOnlyOffline">Deleting of family will also Delete all Members, Policies and Premiums of this Family</string>
   <string name="LastInstallment">Last Installment</string>
+    <string name="HighestEd">Highest Education</string>
 </resources>
