@@ -150,6 +150,7 @@ In case of dispute arising out or in relation to the use of the program, it is s
             getFamilyTables();
             getFamilyFarming();
             getYesNoNoCh();
+            fillEducations();
         }
 
         function saveFamilyLocally(){
@@ -286,6 +287,15 @@ In case of dispute arising out or in relation to the use of the program, it is s
 
         }
 
+        function fillEducations(){
+            $textLanguage = "Education";
+            if(Android.getSelectedLanguage() != "en"){
+                $textLanguage = "AltLanguage";
+            }
+            var $Educations = Android.getEducations();
+            bindDropdown('txtHighestEd', $Educations, 'EducationId', $textLanguage,0, Android.getString('SelectPovertyStatus'));
+        }
+
     </script>
 
 </head>
@@ -364,6 +374,10 @@ In case of dispute arising out or in relation to the use of the program, it is s
         <span strName="Field2">Field2</span>
         <input type="text" id="txtField2" datafield="Field2" maxlength="50" />
     </li>
+        <li id="HighestEd">
+            <span strName="HighestEd">Highest Education</span>
+            <select id="txtHighestEd" datafield="HighestEd" required > </select>
+        </li>
 
     </ul>
 

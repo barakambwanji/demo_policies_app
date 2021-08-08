@@ -990,7 +990,7 @@ public class ClientAndroidInterface {
             String NumberChildren = data.get("ddlNumberChildren");
             String Field1 = data.get("txtField1");
             String Field2 = data.get("txtField2");
-
+            String HighestEd = data.get("txtHighestEd");
 
 
             String ConfirmationNo = data.get("txtConfirmationNo");
@@ -1006,6 +1006,7 @@ public class ClientAndroidInterface {
             values.put("HouseNumber", HouseNumber);
             values.put("NumberChildren", NumberChildren);
             values.put("Field1", Field1);
+            values.put("HighestEd", HighestEd);
             values.put("Field2", Field2);
             values.put("Ethnicity", Ethnicity);
             values.put("ConfirmationNo", ConfirmationNo);
@@ -1765,7 +1766,7 @@ System.out.println(Query);
 
     @JavascriptInterface
     public String getFamily(int FamilyId) {
-        String sSQL = "SELECT R.LocationId RegionId, D.LocationId DistrictId, W.LocationId WardId, V.LocationId VillageId, F.FamilyId, F.InsureeId, F.Poverty, F.isOffline, F.FamilyType, F.FamilyAddress, F.TeleVision, F.FamilyTables, F.FamilyFarming, F.HouseNumber, F.NumberChildren, F.Field1, F.Field2, F.Ethnicity, F.ConfirmationNo, F.ConfirmationType, isOffline \n" +
+        String sSQL = "SELECT R.LocationId RegionId, D.LocationId DistrictId, W.LocationId WardId, V.LocationId VillageId, F.FamilyId, F.InsureeId, F.Poverty, F.isOffline, F.FamilyType, F.FamilyAddress, F.TeleVision, F.FamilyTables, F.FamilyFarming, F.HighestEd, F.HouseNumber, F.NumberChildren, F.Field1, F.Field2, F.Ethnicity, F.ConfirmationNo, F.ConfirmationType, isOffline \n" +
                 "FROM tblFamilies F\n" +
                 "INNER JOIN tblLocations V ON V.LocationId= F.LocationId\n" +
                 "INNER JOIN tblLocations W ON W.LocationId = V.ParentLocationId\n" +
@@ -3861,7 +3862,7 @@ System.out.println("mwemwe: " + object);
             }*/
 
             //Query = "SELECT ABS(F.FamilyId) AS FamilyId, ABS(F.InsureeId) AS InsureeId, F.LocationId, I.CHFID AS HOFCHFID, NULLIF(F.Poverty,'null') Poverty, NULLIF(F.FamilyType,'null') FamilyType, NULLIF(F.FamilyAddress,'null') FamilyAddress, NULLIF(F.Ethnicity,'null') Ethnicity, NULLIF(F.ConfirmationNo,'null') ConfirmationNo, F.ConfirmationType ConfirmationType,F.isOffline isOffline FROM tblFamilies F\n" +
-            Query = "SELECT ABS(F.FamilyId) AS FamilyId, ABS(F.InsureeId) AS InsureeId, F.LocationId, I.CHFID AS HOFCHFID, NULLIF(F.Poverty,'null') Poverty, NULLIF(F.FamilyType,'null') FamilyType, NULLIF(F.FamilyAddress,'null') FamilyAddress, NULLIF(F.TeleVision,'null') TeleVision, NULLIF(F.FamilyTables,'null') FamilyTables, NULLIF(F.FamilyFarming,'null') FamilyFarming, NULLIF(F.HouseNumber,'null') HouseNumber, NULLIF(F.NumberChildren,'null') NumberChildren, NULLIF(F.Field1,'null') Field1, NULLIF(F.Field2,'null') Field2, NULLIF(F.Ethnicity,'null') Ethnicity, NULLIF(F.ConfirmationNo,'null') ConfirmationNo, F.ConfirmationType ConfirmationType,F.isOffline isOffline FROM tblFamilies F\n" +
+            Query = "SELECT ABS(F.FamilyId) AS FamilyId, ABS(F.InsureeId) AS InsureeId, F.LocationId, I.CHFID AS HOFCHFID, NULLIF(F.Poverty,'null') Poverty, NULLIF(F.FamilyType,'null') FamilyType, NULLIF(F.FamilyAddress,'null') FamilyAddress, NULLIF(F.TeleVision,'null') TeleVision, NULLIF(F.FamilyTables,'null') FamilyTables, NULLIF(F.FamilyFarming,'null') FamilyFarming, NULLIF(F.HighestEd,'null') HighestEd, NULLIF(F.HouseNumber,'null') HouseNumber, NULLIF(F.NumberChildren,'null') NumberChildren, NULLIF(F.Field1,'null') Field1, NULLIF(F.Field2,'null') Field2, NULLIF(F.Ethnicity,'null') Ethnicity, NULLIF(F.ConfirmationNo,'null') ConfirmationNo, F.ConfirmationType ConfirmationType,F.isOffline isOffline FROM tblFamilies F\n" +
             //Query = "SELECT F.FamilyId, ABS(F.InsureeId) AS InsureeId, F.LocationId, I.CHFID AS HOFCHFID, NULLIF(F.Poverty,'null') Poverty, NULLIF(F.FamilyType,'null') FamilyType, NULLIF(F.FamilyAddress,'null') FamilyAddress, NULLIF(F.TeleVision,'null') TeleVision, NULLIF(F.FamilyTables,'null') FamilyTables, NULLIF(F.FamilyFarming,'null') FamilyFarming, NULLIF(F.HouseNumber,'null') HouseNumber, NULLIF(F.NumberChildren,'null') NumberChildren, NULLIF(F.Field1,'null') Field1, NULLIF(F.Field2,'null') Field2, NULLIF(F.Ethnicity,'null') Ethnicity, NULLIF(F.ConfirmationNo,'null') ConfirmationNo, F.ConfirmationType ConfirmationType,F.isOffline isOffline FROM tblFamilies F\n" +
                     "INNER JOIN tblInsuree I ON I.InsureeId = F.InsureeId WHERE";
 
@@ -6716,7 +6717,7 @@ System.out.println("mwemwe: " + object);
         JSONArray CheckedArrey = sqlHandler.getResult(QueryCheck, null);
         if (CheckedArrey.length() == 0) {
             String Columns[] = {"familyId", "familyUUID", "insureeId", "insureeUUID", "locationId", "poverty", "isOffline", "familyType",
-                    "familyAddress", "teleVision", "familyTables", "familyFarming", "houseNumber", "numberChildren", "field1", "field2", "ethnicity", "confirmationNo", "confirmationType"};
+                    "familyAddress", "teleVision", "familyTables", "familyFarming", "HighestEd", "houseNumber", "numberChildren", "field1", "field2", "ethnicity", "confirmationNo", "confirmationType"};
             sqlHandler.insertData("tblFamilies", Columns, jsonArray.toString(), "");
         }
         return true;
